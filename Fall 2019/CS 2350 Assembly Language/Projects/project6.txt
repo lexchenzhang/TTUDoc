@@ -1,0 +1,4 @@
+Description: Write a program that displays a single character
+at 100 random screen locations, with a delay factor of 100 milliseconds.
+Hint: set the console window screen height to 200 at runtime, and 
+watch the scroll bar jump up and down.

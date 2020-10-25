@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/lex/Documents/c++/miniproject-2/shell.c
+stdio.h
+-
+unistd.h
+-
+stdlib.h
+-
+sys/wait.h
+-
+shell.h
+/Users/lex/Documents/c++/miniproject-2/shell.h
+
+/Users/lex/Documents/c++/miniproject-2/shell.h
+

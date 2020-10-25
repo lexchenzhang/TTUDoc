@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/lex/TTU/Fall 2020/CS4352/Project/miniproject-3/segments.c
+segments.h
+/Users/lex/TTU/Fall 2020/CS4352/Project/miniproject-3/segments.h
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+
+/Users/lex/TTU/Fall 2020/CS4352/Project/miniproject-3/segments.h
+
