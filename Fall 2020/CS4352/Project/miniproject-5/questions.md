@@ -4,7 +4,8 @@ For questions 5-9, go to your kernel source directory and do either a `make menu
 
 2. Run the following command from a terminal: ``uname -a``.
 What is the output from your old kernel? What's the output from the new kernel?
-
+old kernel:
+Linux lex-Ubuntu 5.4.0-48-generic #52-Ubuntu SMP Thu Sep 10 10:58:49 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
 3. Go to the `/boot` directory and issue an `ls -rlt` command (this puts newly created files at the bottom). You should see four new files: vmlinuz-*version*, System.map-*version*, config-*version* and initrd.img-*version*, where *version* is the kernel version you compiled. Give a short description of the purpose of each of these four files.
 
 4. What is the size of the kernel binary (e.g., your vmlinuz file) in MB? You can use the ``ls -lh`` command to determine this.
