@@ -1,0 +1,24 @@
+sorts
+    #people = {tony, lily, bob, sara, alice}.
+predicates
+    female(#people).
+    mather(#people, #people).
+    father(#people, #people).
+    sister(#people, #people).
+    grandfather(#people, #people).
+rules
+    female(sara).
+    female(alice).
+    father(bob, sara).
+    father(bob, alice).
+    father(tony, bob).
+    mather(lily, sara).
+    mather(lily, alice).
+    sister(sara, alice):-female(sara),female(alice),father(bob, sara),father(bob, alice).
+    sister(sara, alice):-female(sara),female(alice),mather(lily, sara),mather(lily, alice).
+    grandfather(tony, sara):-father(tony, bob),father(bob, sara).
+    grandfather(tony, alice):-father(tony, bob),father(bob, alice).
+
+    %tony is sara and alice's grandfather
+    %sara is alice's sister
+    %alice is sara's sister
