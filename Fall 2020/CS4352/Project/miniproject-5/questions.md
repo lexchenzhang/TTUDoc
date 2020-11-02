@@ -1,12 +1,19 @@
 For questions 5-9, go to your kernel source directory and do either a `make menuconfig` or a `make xconfig` (you may need to install packages (https://askubuntu.com/questions/520864/how-to-install-needed-qt-packages-to-build-kernel-on-14-04) to use xconfig). This allows you to view and configure the options that your kernel will be built with. 
 
 1. What is the version of the kernel you compiled?
-
+5.9.1
 2. Run the following command from a terminal: ``uname -a``.
 What is the output from your old kernel? What's the output from the new kernel?
+
 old kernel:
 Linux lex-Ubuntu 5.4.0-48-generic #52-Ubuntu SMP Thu Sep 10 10:58:49 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
+
+new kernel:
+Linux lex-Ubuntu 5.9.1 #1 SMP Sun Oct 25 16:11:17 EDT 2020 x86_64 x86_64 x86_64 GNU/Linux
+
 3. Go to the `/boot` directory and issue an `ls -rlt` command (this puts newly created files at the bottom). You should see four new files: vmlinuz-*version*, System.map-*version*, config-*version* and initrd.img-*version*, where *version* is the kernel version you compiled. Give a short description of the purpose of each of these four files.
+
+
 
 4. What is the size of the kernel binary (e.g., your vmlinuz file) in MB? You can use the ``ls -lh`` command to determine this.
 
