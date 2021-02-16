@@ -1,0 +1,4 @@
+/Users/lex/Documents/c++/miniproject-2/build/CMakeFiles/rebuild_cache.dir
+/Users/lex/Documents/c++/miniproject-2/build/CMakeFiles/edit_cache.dir
+/Users/lex/Documents/c++/miniproject-2/build/CMakeFiles/test.dir
+/Users/lex/Documents/c++/miniproject-2/build/CMakeFiles/shell.dir
