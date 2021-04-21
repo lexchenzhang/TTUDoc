@@ -1,5 +1,5 @@
 CC	=	gcc
-OBJ	=	code_p3
+OBJ	=	project_part1
 all: $(OBJ)
 
 $(OBJ):%:%.c
