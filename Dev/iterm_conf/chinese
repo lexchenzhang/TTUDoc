@@ -1,0 +1,9 @@
+#!/usr/bin/expect
+set timeout 20
+set password "*#001-root"
+spawn ssh root@39.107.240.174
+sleep 1
+expect "*pass*" 
+send  "$password\r"
+interact
+
