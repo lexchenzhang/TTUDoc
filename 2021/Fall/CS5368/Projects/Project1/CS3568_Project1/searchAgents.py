@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -286,17 +286,26 @@ class CornersProblem(search.SearchProblem):
                 print ('Warning: no food in corner ' + str(corner))
         self._expanded = 0 # Number of search nodes expanded
         "*** TTU CS3568 YOUR CODE HERE ***"
-
+        self.cornerList = []
+        self.startState = (self.startingPosition, self.cornerList)
 
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
         "*** TTU CS3568 SOME CODE HERE ***"
-        util.raiseNotDefined()
+        return self.startState
 
     def isGoalState(self, state):
         "Returns whether this search state is a goal state of the problem"
         "*** TTU CS3568 SOME CODE HERE ***"
-        util.raiseNotDefined()
+        node = state[0]
+        visitedCorners = state[1]
+
+        if node in self.corners:
+            if node not in visitedCorners:
+                visitedCorners.append(node)
+                print(visitedCorners)
+            return len(visitedCorners) == 4
+        return False
 
     def getSuccessors(self, state):
         """
@@ -311,6 +320,9 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+
+        i = True
+
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
@@ -320,6 +332,20 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** TTU CS3568 YOUR CODE HERE ***"
+            x,y = state[0]
+            visitedCorners = state[1]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall:
+                next_state = (nextx, nexty)
+                successVisitedCorners = list(visitedCorners)
+                if next_state in self.corners:
+                    corner_state = next_state
+                    if corner_state not in successVisitedCorners:
+                        successVisitedCorners.append(corner_state)
+                child = ((next_state, successVisitedCorners), action, 1)
+                successors.append(child)
 
         self._expanded += 1
         return successors
@@ -358,9 +384,27 @@ def cornersHeuristic(state, problem):
     "*** TTU CS3568 Say your heuristic in Few Words ***"
     "*** TTU CS3568 heuristic: ***"
 
-    
+    x, y = state[0]
+    visitedCorners = state[1]
+    nonVisitedCorners = list(set(corners).difference(set(visitedCorners)))
 
-    return 0 # Default to trivial solution
+    distance = 0
+
+    path=((0,0),(0,0),0)
+    for currentCorner in nonVisitedCorners:
+        for selectedCorner in nonVisitedCorners:
+            if currentCorner!=selectedCorner:
+                distance = abs(currentCorner[0] - selectedCorner[0]) + abs(currentCorner[1] - selectedCorner[1])
+                if(path[2] < distance):
+                    path = (currentCorner,selectedCorner,distance)
+
+    if(path[0]!=path[1]):
+        d1 = abs(x - path[0][0]) + abs(y - path[0][1])
+        d2 = abs(x - path[1][0]) + abs(y - path[1][1])
+        distance = path[2] + min(d1,d2)
+    elif len(nonVisitedCorners)==1:
+        distance = abs(x - nonVisitedCorners[0][0]) + abs(y - nonVisitedCorners[0][1])
+    return distance
 
 
 class AStarCornersAgent(SearchAgent):
@@ -455,7 +499,25 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** TTU CS3568 YOUR CODE HERE ***"
-    return 0
+    foodGridList = foodGrid.asList()
+
+    distance = 0
+    path=((0,0),(0,0),0)
+    for currentFood in foodGridList:
+        for selectedFood in foodGridList:
+            if currentFood!=selectedFood:
+                distance = abs(currentFood[0] - selectedFood[0]) + abs(currentFood[1] - selectedFood[1])
+                if(path[2] < distance):
+                    path = (currentFood,selectedFood,distance)
+
+    if(path[0]!=path[1]):
+        d1 = abs(position[0] - path[0][0]) + abs(position[1] - path[0][1])
+        d2 = abs(position[0] - path[1][0]) + abs(position[1] - path[1][1])
+        distance = path[2] + min(d1,d2)
+    elif len(foodGridList)==1:
+        distance = abs(position[0] - foodGridList[0][0]) + abs(position[1] - foodGridList[0][1])
+
+    return distance
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -483,9 +545,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** TTU CS3568 YOUR CODE HERE ***"
-        return search.astar(problem)
-
-        util.raiseNotDefined()
+        return search.breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -521,6 +581,10 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
+        walls = self.walls
+        h, w = walls.height, walls.width
+        foodTuple = tuple([(i, j) for j in range(0, h) for i in range(0, w) if self.food.data[i][j]])
+        return bool(state in foodTuple)
         util.raiseNotDefined()
 
 def mazeDistance(point1, point2, gameState):
