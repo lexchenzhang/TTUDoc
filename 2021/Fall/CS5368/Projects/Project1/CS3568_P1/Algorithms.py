@@ -19,125 +19,98 @@ class DFS(object):
         print "Start's successors:", problem.getSuccessors(problem.getStartState())
         """
         "*** TTU CS3568 YOUR CODE HERE ***"
-
-        """
-        # create fringe to store nodes
-        fringe = util.Stack()
-        # track visited nodes
-        visited = []
-        # push initial state to fringe
-        fringe.push((problem.getStartState(), [], 1))
-
-        while not fringe.isEmpty():
-            node = fringe.pop()
-            state = node[0]
-            actions = node[1]
-            # visited node
-            # goal check
-            if problem.isGoalState(state):
-                return actions
-            if state not in visited:
-                visited.append(state)
-                # visit child nodes
-                successors = problem.getSuccessors(state)
-                for child in successors:
-                    # store state, action and cost = 1
-                    child_state = child[0]
-                    child_action = child[1]
-                    if child_state not in visited:
-                        # add child nodes
-                        child_action = actions + [child_action]
-                        fringe.push((child_state, child_action, 1))
-        """
-
-        # result用于记录访问的路径与顺序 visited用于记录是否被访问过
-        result = []
+        path = []
         visited = []
 
-        # 使用栈来模拟深度最深的节点先拓展的逻辑
+        # stack is a suitable datastructure for DFS
         stack = util.Stack()
         start = (problem.getStartState(), [])
-        # 将初始状态入栈
+        # push stating point to stack
         stack.push(start)
 
-
         while not stack.isEmpty():
-            # 出栈的是栈顶元素 就是最近入栈的元素 就是深度最深的节点
+            # alwasys pop the top element
             (state, path) = stack.pop()
             if problem.isGoalState(state):
-                result = path
+                path = path
                 break
 
             if state not in visited:
-                # 将该元素打上访问过了的标记
+                # keep tracking visited nodes
                 visited.append(state)
                 for currState, currPath, cost in problem.getSuccessors(state):
                     newPath = path + [currPath]
                     newState = (currState, newPath)
-                    # 拓展节点状态全部入栈
+                    # add sub-nodes to stack
                     stack.push(newState)
-        # 因为是深搜 所以一条路走到底 能较快的找到一条路径
-        return result
+
+        return path
         util.raiseNotDefined()
 
 
 class BFS(object):
     def breadthFirstSearch(self, problem):
         "*** TTU CS3568 YOUR CODE HERE ***"
-
-        # create fringe to store nodes
-        fringe = util.Queue()
-        # track visited nodes
+        path = []
         visited = []
-        # push initial state to fringe
-        fringe.push((problem.getStartState(), [], 1))
 
-        while not fringe.isEmpty():
-            node = fringe.pop()
-            state = node[0]
-            actions = node[1]
-            # goal check
+        # queue is a suitable datastructure for DFS
+        queue = util.Queue()
+        start = (problem.getStartState(), [])
+        # push stating point to queue
+        queue.push(start)
+
+        while not queue.isEmpty():
+            # alwasys pop the top element
+            (state, path) = queue.pop()
             if problem.isGoalState(state):
-                return actions
-            if state not in visited:
-                visited.append(state)
-                # visit child nodes
-                successors = problem.getSuccessors(state)
-                for child in successors:
-                    # store state, action and cost = 1
-                    child_state = child[0]
-                    child_action = child[1]
-                    if child_state not in visited:
-                        # add child nodes
-                        child_action = actions + [child_action]
-                        fringe.push((child_state, child_action, 1))
+                path = path
+                break
 
+            if state not in visited:
+                # keep tracking visited nodes
+                visited.append(state)
+                for currState, currPath, cost in problem.getSuccessors(state):
+                    newPath = path + [currPath]
+                    newState = (currState, newPath)
+                    # add sub-nodes to queue
+                    queue.push(newState)
+
+        return path
         util.raiseNotDefined()
 
 
 class UCS(object):
     def uniformCostSearch(self, problem):
         "*** TTU CS3568 YOUR CODE HERE ***"
+        path = []
+        visited = []
 
-        closed = []
-        fringe = util.PriorityQueue()
-        fringe.push((problem.getStartState(), 0, []), 0)
+        # priority queue is a suitable datastructure for UCS
+        heap = util.PriorityQueue()
+        # we add a cost value here
+        start = (problem.getStartState(), [], 0)
+        # push stating point to heap
+        heap.push(start, start[2])
 
-        while not fringe.isEmpty():
-            node, cost, directions = fringe.pop()
+        while not heap.isEmpty():
+            # alwasys pop the top element
+            (state, path, cost) = heap.pop()
+            if problem.isGoalState(state):
+                path = path
+                break
 
-            if problem.isGoalState(node):
-                return directions
-
-            if not (node in closed):
-                closed.append(node)
-
-                for node, direction, step_cost in problem.getSuccessors(node):
-                    fringe.push((node, cost + step_cost, directions + [direction]), cost + step_cost)
-        if fringe.isEmpty():
-            return []
-
-
+            if state not in visited:
+                # keep tracking visited nodes
+                visited.append(state)
+                for currState, currPath, currCost in problem.getSuccessors(state):
+                    newPath = path + [currPath]
+                    newCost = cost + currCost
+                    newState = (currState, newPath, newCost)
+                    # add sub-nodes to heap
+                    heap.push(newState, newCost)
+        return path
+        util.raiseNotDefined()
 class aSearch (object):
     def nullHeuristic(state, problem=None):
         """
@@ -149,30 +122,28 @@ class aSearch (object):
         "Search the node that has the lowest combined cost and heuristic first."
         "*** TTU CS3568 YOUR CODE HERE ***"
 
-        # create fringe to store nodes
-        fringe = util.PriorityQueue()
-        # track visited nodes
+        # similar to UCS but with a heuristic weight
+        path = []
         visited = []
-        # push initial state to fringe
-        fringe.push((problem.getStartState(), [], 0), heuristic(problem.getStartState(), problem))
-        while not fringe.isEmpty():
-            node = fringe.pop()
-            state = node[0]
-            actions = node[1]
-            # goal check
-            if problem.isGoalState(state):
-                return actions
+
+        heap = util.PriorityQueue()
+        start = (problem.getStartState(), [], 0)
+        heap.push(start, 0)
+
+        while not heap.isEmpty():
+
+            state, path, cost = heap.pop()
 
             if state not in visited:
                 visited.append(state)
-                # visit child nodes
-                successors = problem.getSuccessors(state)
-                for child in successors:
-                    # store state, action and cost = 1
-                    child_state = child[0]
-                    child_action = child[1]
-                    if child_state not in visited:
-                        # add child nodes
-                        child_action = actions + [child_action]
-                        cost = problem.getCostOfActions(child_action)
-                        fringe.push((child_state, child_action, 0), cost + heuristic(child_state, problem))
+                if problem.isGoalState(state):
+                    path = path
+                    break
+                for currState, currPath, currCost in problem.getSuccessors(state):
+                    newPath = path + [currPath]
+                    newCost = cost + currCost
+                    newState = (currState, newPath, newCost)
+                    # here we need heuristic function
+                    heap.push(newState, newCost + heuristic(currState, problem))
+        return path
+

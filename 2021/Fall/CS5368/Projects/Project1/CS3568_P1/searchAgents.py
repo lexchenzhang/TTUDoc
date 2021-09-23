@@ -545,7 +545,8 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** TTU CS3568 YOUR CODE HERE ***"
-        return search.breadthFirstSearch(problem)
+        # use my UCS code here
+        return search.uniformCostSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
