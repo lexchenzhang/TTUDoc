@@ -46,7 +46,7 @@ class ValueIterationAgent(ValueEstimationAgent):
 
         # Write value iteration code here
         "*** CS3568 YOUR CODE HERE ***"
-
+        # update value based on states and actions
         for i in range(self.iterations):
             valueForState = util.Counter()
             for state in self.mdp.getStates():
@@ -71,8 +71,9 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** CS3568 YOUR CODE HERE ***"
-        pass
+        # init the q value
         qValue = 0
+        # update the q value based on iteration
         for transition in self.mdp.getTransitionStatesAndProbs(state, action):
             qValue = qValue + transition[1] * (self.mdp.getReward(state, action, transition[0]) + self.discount * self.values[transition[0]])
         return qValue
@@ -86,10 +87,12 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** CS3568 YOUR CODE HERE ***"
+        # return if no possible action
         if len(self.mdp.getPossibleActions(state)) == 0:
             return None
 
         valuesForActions = util.Counter()
+        # update action values
         for action in self.mdp.getPossibleActions(state):
             valuesForActions[action] = self.computeQValueFromValues(state, action)
 

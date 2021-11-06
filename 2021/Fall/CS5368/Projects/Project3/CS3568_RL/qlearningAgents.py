@@ -43,6 +43,7 @@ class QLearningAgent(ReinforcementAgent):
         ReinforcementAgent.__init__(self, **args)
 
         "*** CS3568 YOUR CODE HERE ***"
+        # declare a list to store qvalues
         self.qvalues = {}
 
     def getQValue(self, state, action):
@@ -52,8 +53,9 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         "*** CS3568 YOUR CODE HERE ***"
-        if (state,action) in self.qvalues:
-            return self.qvalues[(state,action)]
+        # return saved q-values
+        if (state, action) in self.qvalues:
+            return self.qvalues[(state, action)]
         else:
             return 0.0
 
@@ -68,6 +70,7 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** CS3568 YOUR CODE HERE ***"
+        # return q value after get values based on action
         qvalues = [self.getQValue(state, action) for action in self.getLegalActions(state)]
         if not len(qvalues): return 0.0
         return max(qvalues)
@@ -79,12 +82,16 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** CS3568 YOUR CODE HERE ***"
+        # get best value based on state
         best_value = self.getValue(state)
-        best_actions = [action for action in self.getLegalActions(state) \
-                        if self.getQValue(state, action) == best_value]
+        # get best action
+        best_actions = [action for action in self.getLegalActions(state) if self.getQValue(state, action) == best_value]
 
-        if not len(best_actions): return None
-        else: return random.choice(best_actions)
+        # return the action from q values
+        if not len(best_actions):
+            return None
+        else:
+            return random.choice(best_actions)
 
     def getAction(self, state):
         """
@@ -101,13 +108,11 @@ class QLearningAgent(ReinforcementAgent):
         legalActions = self.getLegalActions(state)
         action = None
         "*** CS3568 YOUR CODE HERE ***"
+        # return an action based on pobability ( random choose )
         if util.flipCoin(self.epsilon):
             action = random.choice(legalActions)
         else:
             action = self.getPolicy(state)
-
-        return action
-        util.raiseNotDefined()
 
         return action
 
@@ -121,12 +126,12 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** CS3568 YOUR CODE HERE ***"
+        # update q values based on equation
         disc = self.discount
         alpha = self.alpha
         qvalue = self.getQValue(state, action)
         next_value = self.getValue(nextState)
 
-        #new_value = qvalue + alpha * (reward + disc * next_value - qvalue)
         new_value = (1-alpha) * qvalue + alpha * (reward + disc * next_value)
 
         self.setQValue(state, action, new_value)
@@ -195,6 +200,7 @@ class ApproximateQAgent(PacmanQAgent):
           where * is the dotProduct operator
         """
         "*** CS3568 YOUR CODE HERE ***"
+        # calculate the q value based on state and action
         features = self.featExtractor.getFeatures(state, action)
         result = 0
         for feature in features:
