@@ -27,6 +27,7 @@ class PerceptronModel(object):
         Returns: a node containing a single number (the score)
         """
         "*** CS5368 YOUR CODE HERE ***"
+        return nn.DotProduct(x, self.w)
 
     def get_prediction(self, x):
         """
@@ -35,12 +36,25 @@ class PerceptronModel(object):
         Returns: 1 or -1
         """
         "*** CS5368 YOUR CODE HERE ***"
+        ret = nn.DotProduct(self.w, x)
+        if(nn.as_scalar(ret) < 0):
+            return -1
+        else:
+            return 1
 
     def train(self, dataset):
         """
         Train the perceptron until convergence.
         """
         "*** CS5368 YOUR CODE HERE ***"
+        while True:
+            DONE = True
+            for x, y in dataset.iterate_once(1):
+                if nn.as_scalar(y) != self.get_prediction(x):
+                    DONE = False
+                    self.w.update(x, nn.as_scalar(y))
+            if DONE:
+                break
 
 class RegressionModel(object):
     """
@@ -51,6 +65,12 @@ class RegressionModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** CS5368 YOUR CODE HERE ***"
+        self.batch_size = 50
+        self.w0 = nn.Parameter(1, 20)
+        self.b0 = nn.Parameter(1, 20)
+        self.w1 = nn.Parameter(20, 1)
+        self.b1 = nn.Parameter(1, 1)
+        self.alpha = 0.005
 
     def run(self, x):
         """
@@ -62,6 +82,10 @@ class RegressionModel(object):
             A node with shape (batch_size x 1) containing predicted y-values
         """
         "*** CS5368 YOUR CODE HERE ***"
+        xw1 = nn.Linear(x, self.w0)
+        r1 = nn.ReLU(nn.AddBias(xw1, self.b0))
+        xw2 = nn.Linear(r1, self.w1)
+        return nn.AddBias(xw2, self.b1)
 
     def get_loss(self, x, y):
         """
@@ -74,12 +98,30 @@ class RegressionModel(object):
         Returns: a loss node
         """
         "*** CS5368 YOUR CODE HERE ***"
+        return nn.SquareLoss(self.run(x), y)
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** CS5368 YOUR CODE HERE ***"
+        while True:
+
+            # print(nn.Constant(dataset.x), nn.Constant(dataset.y))
+
+            for x, y in dataset.iterate_once(self.batch_size):
+                loss = self.get_loss(x, y)
+                grad = nn.gradients(loss, [self.w0, self.w1, self.b0, self.b1])
+
+                # print(nn.as_scalar(nn.DotProduct(grad[0],grad[0])))
+                self.w0.update(grad[0], -self.alpha)
+                self.w1.update(grad[1], -self.alpha)
+                self.b0.update(grad[2], -self.alpha)
+                self.b1.update(grad[3], -self.alpha)
+
+            # print(nn.as_scalar(self.get_loss(nn.Constant(dataset.x), nn.Constant(dataset.y))))
+            if nn.as_scalar(self.get_loss(nn.Constant(dataset.x), nn.Constant(dataset.y))) < 0.01:
+                return
 
 class DigitClassificationModel(object):
     """
@@ -98,6 +140,12 @@ class DigitClassificationModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** CS5368 YOUR CODE HERE ***"
+        self.batch_size = 5
+        self.w0 = nn.Parameter(784, 100)
+        self.b0 = nn.Parameter(1, 100)
+        self.w1 = nn.Parameter(100, 10)
+        self.b1 = nn.Parameter(1, 10)
+        self.multiplier = -0.004
 
     def run(self, x):
         """
@@ -114,6 +162,12 @@ class DigitClassificationModel(object):
                 (also called logits)
         """
         "*** CS5368 YOUR CODE HERE ***"
+        w1x = nn.Linear(x, self.w0)
+        w1x_plus_b1 = nn.AddBias(w1x, self.b0)
+        r1 = nn.ReLU(w1x_plus_b1)
+        w2x = nn.Linear(r1, self.w1)
+        w2x_plus_b2 = nn.AddBias(w2x, self.b1)
+        return w2x_plus_b2
 
     def get_loss(self, x, y):
         """
@@ -129,12 +183,26 @@ class DigitClassificationModel(object):
         Returns: a loss node
         """
         "*** CS5368 YOUR CODE HERE ***"
+        return nn.SoftmaxLoss(self.run(x), y)
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** CS5368 YOUR CODE HERE ***"
+        while True:
+            for x, y in dataset.iterate_once(self.batch_size):
+                loss = self.get_loss(x, y)
+                grad = nn.gradients(loss, [self.w0, self.w1, self.b0, self.b1])
+                self.w0.update(grad[0], self.multiplier)
+                self.w1.update(grad[1], self.multiplier)
+                self.b0.update(grad[2], self.multiplier)
+                self.b1.update(grad[3], self.multiplier)
+
+            acc = dataset.get_validation_accuracy()
+            print(acc)
+            if (acc >= 0.974):
+                return
 
 class LanguageIDModel(object):
     """
@@ -154,6 +222,15 @@ class LanguageIDModel(object):
 
         # Initialize your model parameters here
         "*** CS5368 YOUR CODE HERE ***"
+        t_parm = 100
+        self.batch_size = 10
+        self.alpha = 0.01
+        self.w0 = nn.Parameter(self.num_chars, t_parm)  # w0
+        self.b0 = nn.Parameter(1, t_parm)  # b0
+        self.w1 = nn.Parameter(t_parm, t_parm)  # w1
+        self.b1 = nn.Parameter(1, t_parm)  # b1
+        self.wf = nn.Parameter(t_parm, 5)  # wf
+        self.bf = nn.Parameter(1, 5)  # bf
 
     def run(self, xs):
         """
@@ -185,6 +262,13 @@ class LanguageIDModel(object):
                 (also called logits)
         """
         "*** CS5368 YOUR CODE HERE ***"
+        h = nn.ReLU(nn.AddBias(nn.Linear(xs[0], self.w0), self.b0))
+        z = h
+        for i, x in enumerate(xs[1:]):
+            z = nn.Add(nn.ReLU(nn.AddBias(nn.Linear(z, self.w1), self.b1)),
+                       nn.ReLU(nn.AddBias(nn.Linear(x, self.w0), self.b0)))
+            z = nn.Add(nn.ReLU(nn.Linear(z, self.w1)), nn.ReLU(nn.Linear(x, self.w0)))
+        return nn.AddBias(nn.Linear(z, self.wf), self.bf)
 
     def get_loss(self, xs, y):
         """
@@ -201,9 +285,30 @@ class LanguageIDModel(object):
         Returns: a loss node
         """
         "*** CS5368 YOUR CODE HERE ***"
+        return nn.SoftmaxLoss(self.run(xs), y)
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** CS5368 YOUR CODE HERE ***"
+        while True:
+
+            # print(nn.Constant(dataset.x), nn.Constant(dataset.y))
+
+            for x, y in dataset.iterate_once(self.batch_size):
+                loss = self.get_loss(x, y)
+                grad = nn.gradients(loss, [self.w0, self.w1, self.wf, self.b0, self.b1, self.bf])
+
+                # print(grad[0], grad[1], grad[2])
+                self.w0.update(grad[0], -self.alpha)
+                self.w1.update(grad[1], -self.alpha)
+                self.wf.update(grad[2], -self.alpha)
+                self.b0.update(grad[3], -self.alpha)
+                self.b1.update(grad[4], -self.alpha)
+                self.bf.update(grad[5], -self.alpha)
+
+            acc = dataset.get_validation_accuracy()
+            print(acc)
+            if (acc >= 0.9):
+                return
